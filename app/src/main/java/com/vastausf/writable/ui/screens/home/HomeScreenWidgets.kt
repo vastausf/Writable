@@ -93,10 +93,11 @@ fun DocumentCard(
                         menuExpanded = true
                     },
                 )
-                .padding(8.dp)
+                .padding(8.dp),
         ) {
             DocumentCover(
                 modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
                     .width(128.dp)
                     .aspectRatio(3f / 4f)
                     .clip(RoundedCornerShape(8.dp)),

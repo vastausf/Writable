@@ -1,5 +1,7 @@
 package com.vastausf.writable.ui.screens.home
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -134,11 +136,24 @@ fun HomeScreen(
                     }
                 }
                 item {
+                    val colors = colors
+
+                    val launcher = rememberLauncherForActivityResult(
+                        ActivityResultContracts.GetContent()
+                    ) { uri ->
+                        uri?.let { viewModel.importDocument(
+                            uri = it,
+                            coverColor = colors.defaultCover.toArgb(),
+                            spineColor = colors.defaultSpine.toArgb(),
+                            bookmarkColor = colors.defaultBookmark.toArgb(),
+                        ) }
+                    }
+
                     QuickAction(
                         painter = painterResource(R.drawable.ic_download),
                         text = stringResource(R.string.import_file),
                     ) {
-
+                        launcher.launch("application/pdf")
                     }
                 }
             }

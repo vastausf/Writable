@@ -30,8 +30,11 @@ class DocumentRepository @Inject constructor(
         )
     )
 
-    suspend fun deleteDocument(document: DocumentEntity) =
+    suspend fun deleteDocument(document: DocumentEntity) {
         documentDao.delete(document)
+
+        pageDao.deleteByIds(document.pagesIds)
+    }
 
     suspend fun updateDocument(document: DocumentEntity) =
         documentDao.update(document)
@@ -55,6 +58,24 @@ class DocumentRepository @Inject constructor(
         documentDao.appendPageId(documentId, index, pageId)
 
         return pageId
+    }
+
+    suspend fun addPages(documentId: Long, offset: Int, pages: List<PageEntity>): List<Long> {
+        val pageIds = pageDao.insertList(pages)
+
+        documentDao.appendPageIds(documentId, offset, pageIds)
+
+        return pageIds
+    }
+
+    suspend fun updatePages(ids: List<Long>, values: List<String>) {
+        val current = pageDao.getByIds(ids).associateBy { it.id }
+
+        val updated = ids.zip(values).mapNotNull { (id, value) ->
+            current[id]?.copy(url = value)
+        }
+
+        pageDao.updateList(updated)
     }
 
     suspend fun movePage(documentId: Long, index: Int, pageId: Long) {

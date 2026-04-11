@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PostAdd
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -27,12 +28,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.vastausf.writable.R
 import com.vastausf.writable.data.db.entry.PageEntity
+import com.vastausf.writable.data.db.entry.PageType
 import com.vastausf.writable.ui.theme.WritableTheme.colors
 import com.vastausf.writable.ui.widgets.ContentText
 import com.vastausf.writable.ui.widgets.ThemedIcon
@@ -42,39 +47,44 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun EditorScreen(
     viewModel: EditorViewModel = hiltViewModel(),
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        val document by viewModel.document.collectAsStateWithLifecycle()
-        val pages by viewModel.pages.collectAsStateWithLifecycle()
-        val listState = rememberLazyListState()
+    Scaffold(
+        containerColor = colors.background,
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            val document by viewModel.document.collectAsStateWithLifecycle()
+            val pages by viewModel.pages.collectAsStateWithLifecycle()
+            val listState = rememberLazyListState()
 
-        LaunchedEffect(listState) {
-            snapshotFlow {
-                listState.layoutInfo.visibleItemsInfo
-                    .map { it.index }
-            }
-                .distinctUntilChanged()
-                .collect { viewModel.onVisiblePagesChanged(it) }
-        }
-
-        val totalPages = document?.pagesIds?.size ?: 0
-
-        LazyColumn(state = listState) {
-            items(totalPages) { page ->
-                RenderPage(pages[page])
+            LaunchedEffect(listState) {
+                snapshotFlow {
+                    listState.layoutInfo.visibleItemsInfo
+                        .map { it.index }
+                }
+                    .distinctUntilChanged()
+                    .collect { viewModel.onVisiblePagesChanged(it) }
             }
 
-            item {
-                EndPanel(
-                    onNewPageClick = {
-                        viewModel.addNewPage(
-                            index = totalPages,
-                        )
-                    },
-                )
+            val totalPages = document?.pagesIds?.size ?: 0
+
+            LazyColumn(state = listState) {
+                items(totalPages) { page ->
+                    RenderPage(pages[page])
+                }
+
+                item {
+                    EndPanel(
+                        onNewPageClick = {
+                            viewModel.addNewPage(
+                                index = totalPages,
+                            )
+                        },
+                    )
+                }
             }
         }
     }
@@ -90,14 +100,29 @@ fun RenderPage(page: PageEntity?) {
                 .background(colors.surface)
         )
     } else {
-        Text(
-            modifier = Modifier
-                .padding(4.dp, 2.dp)
-                .background(colors.surface)
-                .fillMaxWidth()
-                .aspectRatio(3f / 4f),
-            text = "Page: ${page.id}",
-        )
+        when (page.type) {
+            PageType.Blank -> {
+                Text(
+                    modifier = Modifier
+                        .padding(4.dp, 2.dp)
+                        .background(Color.White)
+                        .fillMaxWidth()
+                        .aspectRatio(3f / 4f),
+                    text = "Page: ${page.id}",
+                )
+            }
+            PageType.Image -> {
+                AsyncImage(
+                    modifier = Modifier
+                        .padding(4.dp, 2.dp)
+                        .background(Color.White)
+                        .fillMaxWidth()
+                        .aspectRatio(3f / 4f),
+                    model = page.url?.toUri(),
+                    contentDescription = null,
+                )
+            }
+        }
     }
 }
 

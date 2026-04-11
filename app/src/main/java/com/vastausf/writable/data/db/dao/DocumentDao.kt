@@ -37,6 +37,15 @@ interface DocumentDao {
         update(document.copy(pagesIds = pageIds))
     }
 
+    suspend fun appendPageIds(documentId: Long, offset: Int, pageIds: List<Long>) {
+        val document = getById(documentId) ?: return
+
+        val newPageIds = document.pagesIds.toMutableList()
+        newPageIds.addAll(offset, pageIds)
+
+        update(document.copy(pagesIds = newPageIds))
+    }
+
     suspend fun removePageId(documentId: Long, pageId: Long) {
         val document = getById(documentId) ?: return
 
