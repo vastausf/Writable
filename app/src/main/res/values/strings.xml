@@ -16,4 +16,8 @@
     <string name="new_page">New page</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="cover">Cover</string>
+    <string name="spine">Spine</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="save">Save</string>
 </resources>

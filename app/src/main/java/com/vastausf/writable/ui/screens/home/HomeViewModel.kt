@@ -27,4 +27,8 @@ class HomeViewModel @Inject constructor(
     fun deleteDocument(document: DocumentEntity) = viewModelScope.launch {
         repository.deleteDocument(document)
     }
+
+    fun updateDocument(document: DocumentEntity) = viewModelScope.launch {
+        repository.updateDocument(document)
+    }
 }

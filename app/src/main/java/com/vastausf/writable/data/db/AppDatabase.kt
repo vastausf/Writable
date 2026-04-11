@@ -26,6 +26,8 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object: Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE documents ADD COLUMN coverColor INTEGER NOT NULL DEFAULT -1")
+                db.execSQL("ALTER TABLE documents ADD COLUMN edgeColor INTEGER NOT NULL DEFAULT -1")
+                db.execSQL("ALTER TABLE documents ADD COLUMN bookmarkColor INTEGER NOT NULL DEFAULT -1")
             }
         }
     }

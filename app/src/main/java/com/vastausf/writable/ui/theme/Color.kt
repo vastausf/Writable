@@ -11,6 +11,17 @@ data class WritableColors(
     val textAndIcons: Color,
     val textAndIconsSecondary: Color,
     val outline: Color,
+
+    val palette: List<Color> = listOf(
+        Color(0xFFFFB3B3), Color(0xFFFF8FA3), Color(0xFFFF6B9D),
+        Color(0xFFC9B8F5), Color(0xFFB39DDB), Color(0xFF9C7FD4),
+        Color(0xFF81C8F5), Color(0xFF5BA8E5), Color(0xFF4090D4),
+        Color(0xFF7DDFC3), Color(0xFF4ECBA8), Color(0xFF2EB891),
+        Color(0xFFFFD166), Color(0xFFFFBF40), Color(0xFFFFAA1A),
+        Color(0xFFFFAD8A), Color(0xFFFF8C61), Color(0xFFFF6B3D),
+        Color(0xFF98D68E), Color(0xFF72C264), Color(0xFF4DAD40),
+        Color(0xFF5C6BC0), Color(0xFF7B4FA6), Color(0xFF2E7D9E),
+    )
 )
 
 val LocalWritableColors = staticCompositionLocalOf {

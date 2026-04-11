@@ -1,35 +1,26 @@
 package com.vastausf.writable.ui.screens.home
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
@@ -37,11 +28,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -50,16 +40,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vastausf.writable.R
 import com.vastausf.writable.data.db.entry.DocumentEntity
 import com.vastausf.writable.ui.theme.WritableTheme.colors
-import com.vastausf.writable.ui.widgets.ContentText
 import com.vastausf.writable.ui.widgets.DocumentCover
+import com.vastausf.writable.ui.widgets.DrawableBottomSheet
 import com.vastausf.writable.ui.widgets.RoundButton
+import com.vastausf.writable.ui.widgets.ThemedButton
 import com.vastausf.writable.ui.widgets.TitleText
 import com.vastausf.writable.ui.widgets.WritableDropdownMenu
 import com.vastausf.writable.ui.widgets.WritableDropdownMenuItem
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -165,112 +152,149 @@ fun HomeScreen(
                 }
             }
         }
-    }
-}
 
-@Composable
-private fun QuickAction(
-    painter: Painter,
-    text: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .padding(8.dp, 4.dp)
-            .background(
-                color = colors.surface,
-                shape = RoundedCornerShape(8.dp),
-            )
-            .border(
-                border = BorderStroke(1.dp, colors.outline),
-                shape = RoundedCornerShape(8.dp),
-            )
-            .clickable(onClick = onClick)
-            .padding(16.dp, 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            modifier = Modifier
-                .size(32.dp),
-            painter = painter,
-            contentDescription = null,
+        EditDocumentBottomSheet(
+            document = selectedDocument,
+            onDismissRequest = {
+                selectedDocument = null
+            },
+            onSubmit = { document ->
+                viewModel.updateDocument(document)
+
+                selectedDocument = null
+            }
         )
-        Spacer(Modifier.size(8.dp))
-        ContentText(text)
     }
 }
 
 @Composable
-private fun DocumentCard(
-    document: DocumentEntity,
-    onClick: () -> Unit,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
+private fun EditDocumentBottomSheet(
+    document: DocumentEntity?,
+    onDismissRequest: () -> Unit,
+    onSubmit: (DocumentEntity) -> Unit,
 ) {
-    var menuExpanded by remember { mutableStateOf(false) }
+    if (document == null) return
 
-    Box {
-        Column(
+    DrawableBottomSheet(
+        onDismissRequest = onDismissRequest,
+    ) {
+        var selectedCoverColor by remember { mutableStateOf(Color(document.coverColor)) }
+        var selectedSpineColor by remember { mutableStateOf(Color(document.spineColor)) }
+        var selectedBookmarkColor by remember { mutableStateOf(Color(document.bookmarkColor)) }
+
+        val palette = colors.palette
+
+        DocumentCover(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .combinedClickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    onClick = onClick,
-                    onLongClick = {
-                        menuExpanded = true
-                    },
-                )
-                .padding(8.dp)
+                .aspectRatio(3f / 4f)
+                .height(256.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            cover = selectedCoverColor,
+            spine = selectedSpineColor,
+            bookmark = selectedBookmarkColor,
+        )
+
+        TitleText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            text = stringResource(R.string.cover),
+        )
+
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            DocumentCover(
-                modifier = Modifier
-                    .aspectRatio(3f / 4f)
-                    .clip(RoundedCornerShape(8.dp)),
-                cover = Color(document.coverColor),
-                edge = Color(0xFF9A6949),
-                bookmark = colors.accent,
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = document.title,
-                color = colors.textAndIcons,
-            )
-            Text(
-                text = document.openedAt.toFormattedDateTime(),
-                color = colors.textAndIconsSecondary,
-            )
+            items(palette) { paletteColor ->
+                DocumentCover(
+                    modifier = Modifier
+                        .height(128.dp)
+                        .aspectRatio(3f / 4f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                selectedCoverColor = paletteColor
+                            },
+                        )
+                        .padding(16.dp),
+                    cover = paletteColor,
+                    spine = selectedSpineColor,
+                    bookmark = selectedBookmarkColor,
+                )
+            }
         }
 
-        WritableDropdownMenu(
-            expanded = menuExpanded,
-            onDismissRequest = { menuExpanded = false },
+        TitleText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            text = stringResource(R.string.spine),
+        )
+
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-            WritableDropdownMenuItem(
-                text = stringResource(R.string.edit),
-                icon = Icons.Rounded.Edit,
-            ) {
-                menuExpanded = false
-
-                onEditClick()
+            items(palette) { paletteColor ->
+                DocumentCover(
+                    modifier = Modifier
+                        .height(128.dp)
+                        .aspectRatio(3f / 4f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                selectedSpineColor = paletteColor
+                            },
+                        )
+                        .padding(16.dp),
+                    cover = selectedCoverColor,
+                    spine = paletteColor,
+                    bookmark = selectedBookmarkColor,
+                )
             }
+        }
 
-            WritableDropdownMenuItem(
-                text = stringResource(R.string.delete),
-                icon = Icons.Rounded.Delete,
-            ) {
-                menuExpanded = false
+        TitleText(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            text = stringResource(R.string.bookmark),
+        )
 
-                onDeleteClick()
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            items(palette) { paletteColor ->
+                DocumentCover(
+                    modifier = Modifier
+                        .height(128.dp)
+                        .aspectRatio(3f / 4f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                selectedBookmarkColor = paletteColor
+                            },
+                        )
+                        .padding(16.dp),
+                    cover = selectedCoverColor,
+                    spine = selectedSpineColor,
+                    bookmark = paletteColor,
+                )
             }
+        }
+
+        ThemedButton(
+            text = stringResource(R.string.save),
+        ) {
+            onSubmit(document.copy(
+                coverColor = selectedCoverColor.toArgb(),
+                spineColor = selectedSpineColor.toArgb(),
+                bookmarkColor = selectedBookmarkColor.toArgb(),
+            ))
         }
     }
-}
-
-private fun Long.toFormattedDateTime(): String {
-    val dateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochMilli(this),
-        ZoneId.systemDefault(),
-    )
-
-    return DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm").format(dateTime)
 }
