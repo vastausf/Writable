@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Writable</string>
+    <string name="all_documents">All documents</string>
+    <string name="search">Search</string>
+    <string name="more">More</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="blank_document">Blank document</string>
+    <string name="import_file">Import file</string>
+    <plurals name="page_count">
+        <item quantity="one">%d page</item>
+        <item quantity="two">%d pages</item>
+        <item quantity="many">%d pages</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
 </resources>
