@@ -12,7 +12,12 @@ data class WritableColors(
     val textAndIconsSecondary: Color,
     val outline: Color,
 
+    val defaultCover: Color = Color(0xFF3D2B1F),
+    val defaultSpine: Color = Color(0xFF2F1F0D),
+    val defaultBookmark: Color = Color(0xFFFFD166),
+
     val palette: List<Color> = listOf(
+        Color(0xFF3D2B1F), Color(0xFF2F1F0D),
         Color(0xFFFFB3B3), Color(0xFFFF8FA3), Color(0xFFFF6B9D),
         Color(0xFFC9B8F5), Color(0xFFB39DDB), Color(0xFF9C7FD4),
         Color(0xFF81C8F5), Color(0xFF5BA8E5), Color(0xFF4090D4),

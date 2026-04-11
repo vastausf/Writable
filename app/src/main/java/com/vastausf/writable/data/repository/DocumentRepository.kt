@@ -16,8 +16,19 @@ class DocumentRepository @Inject constructor(
     fun getAllDocuments(): Flow<List<DocumentEntity>> =
         documentDao.getAll()
 
-    suspend fun createDocument(title: String): Long =
-        documentDao.insert(DocumentEntity(title = title))
+    suspend fun createDocument(
+        title: String,
+        coverColor: Int,
+        spineColor: Int,
+        bookmarkColor: Int,
+    ): Long = documentDao.insert(
+        DocumentEntity(
+            title = title,
+            coverColor = coverColor,
+            spineColor = spineColor,
+            bookmarkColor = bookmarkColor,
+        )
+    )
 
     suspend fun deleteDocument(document: DocumentEntity) =
         documentDao.delete(document)
