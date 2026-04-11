@@ -1,8 +1,13 @@
 package com.vastausf.writable.ui.screens.home
 
+import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vastausf.writable.data.db.entry.DocumentEntity
+import com.vastausf.writable.data.db.entry.PageEntity
+import com.vastausf.writable.data.db.entry.PageType
+import com.vastausf.writable.data.pdfImporter.PdfImporter
 import com.vastausf.writable.data.repository.DocumentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: DocumentRepository,
+    private val pdfImporter: PdfImporter,
 ) : ViewModel() {
     val documents = repository
         .getAllDocuments()
@@ -34,8 +40,39 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    fun importDocument(
+        uri: Uri,
+        coverColor: Int,
+        spineColor: Int,
+        bookmarkColor: Int,
+    ) = viewModelScope.launch {
+        val pdfHandle = pdfImporter.parse(uri) ?: return@launch
+
+        val documentId = repository.createDocument(
+            title = pdfHandle.fileName,
+            coverColor = coverColor,
+            spineColor = spineColor,
+            bookmarkColor = bookmarkColor,
+        )
+
+        val pageIds = repository
+            .addPages(documentId, 0, (0 until pdfHandle.pageCount).map {
+                PageEntity(
+                    type = PageType.Image,
+                )
+            })
+
+        val pagesUri = pdfImporter
+            .import(pdfHandle, pageIds)
+            .map { it.toString() }
+
+        repository.updatePages(pageIds, pagesUri)
+    }
+
     fun deleteDocument(document: DocumentEntity) = viewModelScope.launch {
         repository.deleteDocument(document)
+
+        pdfImporter.deleteAll(document.pagesIds)
     }
 
     fun updateDocument(document: DocumentEntity) = viewModelScope.launch {

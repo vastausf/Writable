@@ -10,7 +10,6 @@ data class PageEntity(
     val documentId: Long = -1,
     val type: PageType,
     val url: String? = null,
-    val pdfPage: Int? = null,
 ) {
     companion object {
         fun blackPage(): PageEntity {
@@ -21,4 +20,4 @@ data class PageEntity(
     }
 }
 
-enum class PageType { Blank, Image, Pdf }
+enum class PageType { Blank, Image }
