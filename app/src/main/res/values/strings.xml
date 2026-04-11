@@ -13,4 +13,5 @@
         <item quantity="many">%d pages</item>
         <item quantity="other">%d pages</item>
     </plurals>
+    <string name="new_page">New page</string>
 </resources>

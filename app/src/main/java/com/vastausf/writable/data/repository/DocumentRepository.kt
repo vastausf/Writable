@@ -19,10 +19,13 @@ class DocumentRepository @Inject constructor(
     suspend fun createDocument(title: String): Long =
         documentDao.insert(DocumentEntity(title = title))
 
+    fun getDocument(documentId: Long): Flow<DocumentEntity?> =
+        documentDao.getByIdFlow(documentId)
+
     suspend fun updateLastOpened(documentId: Long) {
         val document = documentDao.getById(documentId) ?: return
 
-        documentDao.insert(document.copy(openedAt = System.currentTimeMillis()))
+        documentDao.update(document.copy(openedAt = System.currentTimeMillis()))
     }
 
     suspend fun getOrderedPages(documentId: Long): List<PageEntity> {
@@ -30,6 +33,10 @@ class DocumentRepository @Inject constructor(
         val pages = pageDao.getByIds(document.pagesIds).associateBy { it.id }
 
         return document.pagesIds.mapNotNull { pages[it] }
+    }
+
+    suspend fun getPages(indices: List<Long>): List<PageEntity> {
+        return pageDao.getByIds(indices)
     }
 
     suspend fun addPage(documentId: Long, index: Int, page: PageEntity): Long {
