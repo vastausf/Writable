@@ -20,8 +20,18 @@ class HomeViewModel @Inject constructor(
         .map { list -> list.sortedByDescending { it.openedAt } }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun createDocument(title: String) = viewModelScope.launch {
-        repository.createDocument(title)
+    fun createDocument(
+        title: String,
+        coverColor: Int,
+        spineColor: Int,
+        bookmarkColor: Int,
+    ) = viewModelScope.launch {
+        repository.createDocument(
+            title = title,
+            coverColor = coverColor,
+            spineColor = spineColor,
+            bookmarkColor = bookmarkColor,
+        )
     }
 
     fun deleteDocument(document: DocumentEntity) = viewModelScope.launch {

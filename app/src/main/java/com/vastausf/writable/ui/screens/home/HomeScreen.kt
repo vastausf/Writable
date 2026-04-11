@@ -119,12 +119,18 @@ fun HomeScreen(
             LazyRow {
                 item {
                     val documentTitle = stringResource(R.string.blank_document)
+                    val colors = colors
 
                     QuickAction(
                         painter = painterResource(R.drawable.ic_document),
                         text = stringResource(R.string.blank_document),
                     ) {
-                        viewModel.createDocument(documentTitle)
+                        viewModel.createDocument(
+                            title = documentTitle,
+                            coverColor = colors.defaultCover.toArgb(),
+                            spineColor = colors.defaultSpine.toArgb(),
+                            bookmarkColor = colors.defaultBookmark.toArgb(),
+                        )
                     }
                 }
                 item {
