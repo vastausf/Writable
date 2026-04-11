@@ -19,6 +19,9 @@ class DocumentRepository @Inject constructor(
     suspend fun createDocument(title: String): Long =
         documentDao.insert(DocumentEntity(title = title))
 
+    suspend fun deleteDocument(document: DocumentEntity) =
+        documentDao.delete(document)
+
     fun getDocument(documentId: Long): Flow<DocumentEntity?> =
         documentDao.getByIdFlow(documentId)
 

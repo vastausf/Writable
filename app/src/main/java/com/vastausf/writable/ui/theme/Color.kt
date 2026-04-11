@@ -28,11 +28,11 @@ val LocalWritableColors = staticCompositionLocalOf {
 val LightColors = WritableColors(
     primary = Color(0xFF3D2B1F),
     accent = Color(0xFFB5651D),
-    background = Color(0xFFFCF9F8),
-    surface = Color(0xFFF3EFEB),
+    background = Color(0xFFFCFAF9),
+    surface = Color(0xFFF6F2F0),
     textAndIcons = Color(0xFF3D2B1F),
     textAndIconsSecondary = Color(0xFF96817E),
-    outline = Color(0xFFF1B19D),
+    outline = Color(0xFFF6ECE7),
 )
 
 val DarkColors = WritableColors(

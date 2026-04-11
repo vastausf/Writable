@@ -8,9 +8,9 @@ import com.vastausf.writable.ui.theme.WritableTheme.colors
 
 @Composable
 fun ThemedIcon(
-    modifier: Modifier = Modifier,
     imageVector: ImageVector,
     contentDescription: String?,
+    modifier: Modifier = Modifier,
 ) {
     Icon(
         modifier = modifier,

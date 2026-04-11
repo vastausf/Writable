@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,19 +21,17 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +54,8 @@ import com.vastausf.writable.ui.widgets.ContentText
 import com.vastausf.writable.ui.widgets.DocumentCover
 import com.vastausf.writable.ui.widgets.RoundButton
 import com.vastausf.writable.ui.widgets.TitleText
+import com.vastausf.writable.ui.widgets.WritableDropdownMenu
+import com.vastausf.writable.ui.widgets.WritableDropdownMenuItem
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -66,6 +68,7 @@ fun HomeScreen(
     onDocumentClick: (Long) -> Unit,
 ) {
     val documents by viewModel.documents.collectAsStateWithLifecycle()
+    var selectedDocument by remember { mutableStateOf<DocumentEntity?>(null) }
 
     Scaffold(
         containerColor = colors.background,
@@ -96,25 +99,22 @@ fun HomeScreen(
                         dropdownMenuExpanded = true
                     }
 
-                    DropdownMenu(
+                    WritableDropdownMenu(
                         expanded = dropdownMenuExpanded,
                         onDismissRequest = { dropdownMenuExpanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.settings)) },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Rounded.Settings,
-                                    contentDescription = null
-                                )
-                            },
-                            onClick = { dropdownMenuExpanded = false },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.settings)) },
-                            leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
-                            onClick = { dropdownMenuExpanded = false },
-                        )
+                        WritableDropdownMenuItem(
+                            text = stringResource(R.string.settings),
+                            icon = Icons.Rounded.Settings,
+                        ) {
+                            dropdownMenuExpanded = false
+                        }
+                        WritableDropdownMenuItem(
+                            text = stringResource(R.string.settings),
+                            icon = Icons.Rounded.Info,
+                        ) {
+                            dropdownMenuExpanded = false
+                        }
                     }
                 }
             )
@@ -150,9 +150,18 @@ fun HomeScreen(
                 contentPadding = PaddingValues(8.dp),
             ) {
                 items(documents, key = { it.id }) { document ->
-                    DocumentCard(document) {
-                        onDocumentClick(document.id)
-                    }
+                    DocumentCard(
+                        document = document,
+                        onClick = {
+                            onDocumentClick(document.id)
+                        },
+                        onEditClick = {
+                            selectedDocument = document
+                        },
+                        onDeleteClick = {
+                            viewModel.deleteDocument(document)
+                        }
+                    )
                 }
             }
         }
@@ -168,11 +177,14 @@ private fun QuickAction(
     Row(
         modifier = Modifier
             .padding(8.dp, 4.dp)
+            .background(
+                color = colors.surface,
+                shape = RoundedCornerShape(8.dp),
+            )
             .border(
                 border = BorderStroke(1.dp, colors.outline),
                 shape = RoundedCornerShape(8.dp),
             )
-            .background(colors.surface)
             .clickable(onClick = onClick)
             .padding(16.dp, 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -192,36 +204,65 @@ private fun QuickAction(
 private fun DocumentCard(
     document: DocumentEntity,
     onClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(
-                    color = colors.background,
-                ),
-                onClick = onClick,
-            )
-            .padding(8.dp)
-    ) {
-        DocumentCover(
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    Box {
+        Column(
             modifier = Modifier
-                .aspectRatio(3f / 4f)
-                .clip(RoundedCornerShape(8.dp)),
-            cover = Color(0xFF3D2B1F),
-            edge = Color(0xFF9A6949),
-            bookmark = colors.accent,
-        )
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = document.title,
-            color = colors.textAndIcons,
-        )
-        Text(
-            text = document.openedAt.toFormattedDateTime(),
-            color = colors.textAndIconsSecondary,
-        )
+                .clip(RoundedCornerShape(8.dp))
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onClick,
+                    onLongClick = {
+                        menuExpanded = true
+                    },
+                )
+                .padding(8.dp)
+        ) {
+            DocumentCover(
+                modifier = Modifier
+                    .aspectRatio(3f / 4f)
+                    .clip(RoundedCornerShape(8.dp)),
+                cover = Color(document.coverColor),
+                edge = Color(0xFF9A6949),
+                bookmark = colors.accent,
+            )
+            Spacer(Modifier.size(4.dp))
+            Text(
+                text = document.title,
+                color = colors.textAndIcons,
+            )
+            Text(
+                text = document.openedAt.toFormattedDateTime(),
+                color = colors.textAndIconsSecondary,
+            )
+        }
+
+        WritableDropdownMenu(
+            expanded = menuExpanded,
+            onDismissRequest = { menuExpanded = false },
+        ) {
+            WritableDropdownMenuItem(
+                text = stringResource(R.string.edit),
+                icon = Icons.Rounded.Edit,
+            ) {
+                menuExpanded = false
+
+                onEditClick()
+            }
+
+            WritableDropdownMenuItem(
+                text = stringResource(R.string.delete),
+                icon = Icons.Rounded.Delete,
+            ) {
+                menuExpanded = false
+
+                onDeleteClick()
+            }
+        }
     }
 }
 

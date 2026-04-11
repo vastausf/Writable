@@ -20,6 +20,7 @@ object DatabaseModule {
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room
             .databaseBuilder(context, AppDatabase::class.java, "writable.db")
+            .addMigrations(AppDatabase.MIGRATION_1_2)
             .build()
     }
 

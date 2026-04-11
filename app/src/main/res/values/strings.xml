@@ -14,4 +14,6 @@
         <item quantity="other">%d pages</item>
     </plurals>
     <string name="new_page">New page</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
