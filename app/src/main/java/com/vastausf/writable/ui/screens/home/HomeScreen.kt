@@ -4,16 +4,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
@@ -40,10 +43,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vastausf.writable.R
 import com.vastausf.writable.data.db.entry.DocumentEntity
 import com.vastausf.writable.ui.theme.WritableTheme.colors
+import com.vastausf.writable.ui.theme.WritableTheme.typography
 import com.vastausf.writable.ui.widgets.DocumentCover
 import com.vastausf.writable.ui.widgets.DrawableBottomSheet
 import com.vastausf.writable.ui.widgets.RoundButton
 import com.vastausf.writable.ui.widgets.ThemedButton
+import com.vastausf.writable.ui.widgets.ThemedTextField
 import com.vastausf.writable.ui.widgets.TitleText
 import com.vastausf.writable.ui.widgets.WritableDropdownMenu
 import com.vastausf.writable.ui.widgets.WritableDropdownMenuItem
@@ -97,7 +102,7 @@ fun HomeScreen(
                             dropdownMenuExpanded = false
                         }
                         WritableDropdownMenuItem(
-                            text = stringResource(R.string.settings),
+                            text = stringResource(R.string.about),
                             icon = Icons.Rounded.Info,
                         ) {
                             dropdownMenuExpanded = false
@@ -178,6 +183,7 @@ private fun EditDocumentBottomSheet(
     DrawableBottomSheet(
         onDismissRequest = onDismissRequest,
     ) {
+        val title = rememberTextFieldState(document.title)
         var selectedCoverColor by remember { mutableStateOf(Color(document.coverColor)) }
         var selectedSpineColor by remember { mutableStateOf(Color(document.spineColor)) }
         var selectedBookmarkColor by remember { mutableStateOf(Color(document.bookmarkColor)) }
@@ -192,6 +198,16 @@ private fun EditDocumentBottomSheet(
             cover = selectedCoverColor,
             spine = selectedSpineColor,
             bookmark = selectedBookmarkColor,
+        )
+
+        Spacer(modifier = Modifier.size(8.dp))
+
+        ThemedTextField(
+            modifier = Modifier
+                .fillMaxWidth(),
+            style = typography.display,
+            state = title,
+            placeholder = stringResource(R.string.type_document_title),
         )
 
         TitleText(
@@ -289,8 +305,10 @@ private fun EditDocumentBottomSheet(
 
         ThemedButton(
             text = stringResource(R.string.save),
+            enabled = !title.text.isEmpty(),
         ) {
             onSubmit(document.copy(
+                title = title.text.toString(),
                 coverColor = selectedCoverColor.toArgb(),
                 spineColor = selectedSpineColor.toArgb(),
                 bookmarkColor = selectedBookmarkColor.toArgb(),

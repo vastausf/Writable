@@ -18,8 +18,15 @@ import com.vastausf.writable.ui.theme.WritableTheme.colors
 fun ThemedButton(
     text: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
+    val color = if (enabled) {
+        colors.background
+    } else {
+        colors.background.copy(alpha = 0.75f)
+    }
+
     TitleText(
         modifier = Modifier
             .background(
@@ -27,6 +34,7 @@ fun ThemedButton(
                 shape = RoundedCornerShape(8.dp),
             )
             .clickable(
+                enabled = enabled,
                 interactionSource = remember { MutableInteractionSource() },
                 onClick = onClick,
             )
@@ -34,6 +42,6 @@ fun ThemedButton(
             .semantics { role = Role.Button }
             .then(modifier),
         text = text,
-        color = colors.background,
+        color = color,
     )
 }

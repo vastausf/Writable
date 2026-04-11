@@ -20,4 +20,5 @@
     <string name="spine">Spine</string>
     <string name="bookmark">Bookmark</string>
     <string name="save">Save</string>
+    <string name="type_document_title">Type document title</string>
 </resources>
