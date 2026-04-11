@@ -1,7 +1,9 @@
 package com.vastausf.writable.ui.theme
 
 import android.app.Activity
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -38,6 +40,7 @@ fun WritableTheme(
     CompositionLocalProvider(
         LocalWritableColors provides colors,
         LocalWritableTypography provides defaultTypography,
+        LocalIndication  provides ripple(),
         content = content,
     )
 }

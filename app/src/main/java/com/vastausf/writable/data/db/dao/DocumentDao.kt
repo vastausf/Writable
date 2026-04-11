@@ -1,6 +1,7 @@
 package com.vastausf.writable.data.db.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -23,6 +24,9 @@ interface DocumentDao {
 
     @Update
     suspend fun update(document: DocumentEntity)
+
+    @Delete
+    suspend fun delete(document: DocumentEntity)
 
     suspend fun appendPageId(documentId: Long, index: Int, pageId: Long) {
         val document = getById(documentId) ?: return

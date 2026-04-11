@@ -11,4 +11,7 @@ data class DocumentEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val openedAt: Long = System.currentTimeMillis(),
     val pagesIds: List<Long> = emptyList(),
+    val coverColor: Int = 0xFFFFFFFF.toInt(),
+    val spineColor: Int = 0xFFFFFFFF.toInt(),
+    val bookmarkColor: Int = 0xFFFFFFFF.toInt(),
 )

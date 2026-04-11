@@ -2,6 +2,7 @@ package com.vastausf.writable.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vastausf.writable.data.db.entry.DocumentEntity
 import com.vastausf.writable.data.repository.DocumentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,5 +22,13 @@ class HomeViewModel @Inject constructor(
 
     fun createDocument(title: String) = viewModelScope.launch {
         repository.createDocument(title)
+    }
+
+    fun deleteDocument(document: DocumentEntity) = viewModelScope.launch {
+        repository.deleteDocument(document)
+    }
+
+    fun updateDocument(document: DocumentEntity) = viewModelScope.launch {
+        repository.updateDocument(document)
     }
 }
