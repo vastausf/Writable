@@ -15,6 +15,9 @@ interface DocumentDao {
     @Query("SELECT * FROM documents WHERE id = :id")
     suspend fun getById(id: Long): DocumentEntity?
 
+    @Query("SELECT * FROM documents WHERE id = :id")
+    fun getByIdFlow(id: Long): Flow<DocumentEntity?>
+
     @Insert
     suspend fun insert(document: DocumentEntity): Long
 
