@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PostAdd
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,10 +35,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.vastausf.writable.R
-import com.vastausf.writable.data.db.entry.PageEntity
 import com.vastausf.writable.data.db.entry.PageType
 import com.vastausf.writable.ui.theme.WritableTheme.colors
 import com.vastausf.writable.ui.widgets.ContentText
+import com.vastausf.writable.ui.widgets.DrawingLayer
 import com.vastausf.writable.ui.widgets.ThemedIcon
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -73,7 +72,7 @@ fun EditorScreen(
 
             LazyColumn(state = listState) {
                 items(totalPages) { page ->
-                    RenderPage(pages[page])
+                    RenderPage(pages[page], viewModel)
                 }
 
                 item {
@@ -91,8 +90,11 @@ fun EditorScreen(
 }
 
 @Composable
-fun RenderPage(page: PageEntity?) {
-    if (page == null) {
+fun RenderPage(
+    pageState: PageState?,
+    viewModel: EditorViewModel,
+) {
+    if (pageState == null) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -100,28 +102,39 @@ fun RenderPage(page: PageEntity?) {
                 .background(colors.surface)
         )
     } else {
-        when (page.type) {
-            PageType.Blank -> {
-                Text(
-                    modifier = Modifier
-                        .padding(4.dp, 2.dp)
-                        .background(Color.White)
-                        .fillMaxWidth()
-                        .aspectRatio(3f / 4f),
-                    text = "Page: ${page.id}",
-                )
+        Box(
+            modifier = Modifier
+                .padding(4.dp, 2.dp)
+                .fillMaxWidth()
+                .aspectRatio(pageState.page.ratio)
+                .background(Color.White),
+        ) {
+            when (pageState.page.type) {
+                PageType.Blank -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(3f / 4f),
+                    )
+                }
+                PageType.Image -> {
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        model = pageState.page.url?.toUri(),
+                        contentDescription = null,
+                    )
+                }
             }
-            PageType.Image -> {
-                AsyncImage(
-                    modifier = Modifier
-                        .padding(4.dp, 2.dp)
-                        .background(Color.White)
-                        .fillMaxWidth()
-                        .aspectRatio(3f / 4f),
-                    model = page.url?.toUri(),
-                    contentDescription = null,
-                )
-            }
+
+            DrawingLayer(
+                modifier = Modifier
+                    .fillMaxSize(),
+                strokes = pageState.strokes,
+                onStrokeFinished = { stroke ->
+                    viewModel.addStroke(pageState.page.id, stroke)
+                },
+            )
         }
     }
 }

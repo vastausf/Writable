@@ -62,11 +62,16 @@ class HomeViewModel @Inject constructor(
                 )
             })
 
-        val pagesUri = pdfImporter
-            .import(pdfHandle, pageIds)
-            .map { it.toUri().toString() }
+        val pages = pageIds.zip(pdfImporter.import(pdfHandle, pageIds)).map { (id, page) ->
+            PageEntity(
+                id = id,
+                ratio = page.second,
+                url = page.first.toUri().toString(),
+                type = PageType.Image,
+            )
+        }
 
-        repository.updatePagesUri(pageIds, pagesUri)
+        repository.updatePages(pages)
     }
 
     fun deleteDocument(document: DocumentEntity) = viewModelScope.launch {

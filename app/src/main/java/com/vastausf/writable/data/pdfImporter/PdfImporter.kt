@@ -30,8 +30,8 @@ class PdfImporter @Inject constructor(
     suspend fun import(
         pdfHandle: PdfHandle,
         indices: List<Long>,
-    ): List<File> = withContext(Dispatchers.IO) {
-        val pages = mutableListOf<File>()
+    ): List<Pair<File, Float>> = withContext(Dispatchers.IO) {
+        val pages = mutableListOf<Pair<File, Float>>()
 
         val pdfDocument = pageRenderer.openDocument(uri = pdfHandle.uri)
 
@@ -39,15 +39,15 @@ class PdfImporter @Inject constructor(
             for (i in 0 until pdfDocument.pageCount) {
                 val index = indices[i]
 
-                val pageBitmap = pdfDocument.renderPage(i)
+                val page = pdfDocument.renderPage(i)
 
                 val file = fileStorage.getFile(idToName(index))
                 file.outputStream().use { out ->
-                    pageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                    page.bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 }
-                pageBitmap.recycle()
+                page.bitmap.recycle()
 
-                pages.add(file)
+                pages.add(file to page.ratio())
             }
         }
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vastausf.writable.data.db.entry.DocumentEntity
 import com.vastausf.writable.data.db.entry.PageEntity
+import com.vastausf.writable.data.pageCanvas.Stroke
 import com.vastausf.writable.data.repository.DocumentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ class EditorViewModel @Inject constructor(
     private val _document = MutableStateFlow<DocumentEntity?>(null)
     val document = _document.asStateFlow()
 
-    private val _pages = MutableStateFlow<Map<Int, PageEntity>>(emptyMap())
+    private val _pages = MutableStateFlow<Map<Int, PageState>>(emptyMap())
     val pages = _pages.asStateFlow()
 
     private val visibleIndices = MutableStateFlow<List<Int>>(emptyList())
@@ -37,6 +38,8 @@ class EditorViewModel @Inject constructor(
             repository.getDocument(documentId)
                 .collect { document ->
                     _document.value = document
+
+                    loadVisiblePages(visibleIndices.value)
                 }
         }
 
@@ -60,6 +63,20 @@ class EditorViewModel @Inject constructor(
         }
     }
 
+    fun addStroke(pageId: Long, stroke: Stroke) {
+        val position = _pages.value.entries
+            .firstOrNull { it.value.page.id == pageId }
+            ?.key ?: return
+
+        _pages.update { current ->
+            val pageState = current[position] ?: return@update current
+
+            current + (position to pageState.copy(
+                strokes = pageState.strokes + stroke,
+            ))
+        }
+    }
+
     private suspend fun loadVisiblePages(visiblePositions: List<Int>) {
         val document = _document.value ?: return
         val pagesIds = document.pagesIds
@@ -78,9 +95,14 @@ class EditorViewModel @Inject constructor(
 
         val newEntries = positionsToLoad.mapNotNull { position ->
             val pageId = pagesIds[position]
-            loaded[pageId]?.let { position to it }
+            loaded[pageId]?.let { position to PageState(page = it) }
         }.toMap()
 
         _pages.update { it + newEntries }
     }
 }
+
+data class PageState(
+    val page: PageEntity,
+    val strokes: List<Stroke> = emptyList(),
+)

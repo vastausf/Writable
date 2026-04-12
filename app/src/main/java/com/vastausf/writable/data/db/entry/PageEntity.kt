@@ -9,6 +9,7 @@ data class PageEntity(
     val id: Long = 0,
     val documentId: Long = -1,
     val type: PageType,
+    val ratio: Float = 1f,
     val url: String? = null,
 ) {
     companion object {

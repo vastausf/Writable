@@ -1,6 +1,5 @@
 package com.vastausf.writable.data.pdfImporter
 
-import android.graphics.Bitmap
 import android.net.Uri
 import io.mockk.mockk
 
@@ -18,7 +17,7 @@ class FakePdfPageRenderer: PdfPageRenderer {
 class FakePdfDocument(
     override val pageCount: Int,
 ): PdfDocument {
-    override fun renderPage(index: Int): Bitmap = mockk(relaxed = true)
+    override fun renderPage(index: Int): PdfPage = mockk(relaxed = true)
 
     override fun close() { }
 }
