@@ -68,7 +68,7 @@ class DocumentRepository @Inject constructor(
         return pageIds
     }
 
-    suspend fun updatePages(ids: List<Long>, values: List<String>) {
+    suspend fun updatePagesUri(ids: List<Long>, values: List<String>) {
         val current = pageDao.getByIds(ids).associateBy { it.id }
 
         val updated = ids.zip(values).mapNotNull { (id, value) ->
