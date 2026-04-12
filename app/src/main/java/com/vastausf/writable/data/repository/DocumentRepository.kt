@@ -68,14 +68,8 @@ class DocumentRepository @Inject constructor(
         return pageIds
     }
 
-    suspend fun updatePagesUri(ids: List<Long>, values: List<String>) {
-        val current = pageDao.getByIds(ids).associateBy { it.id }
-
-        val updated = ids.zip(values).mapNotNull { (id, value) ->
-            current[id]?.copy(url = value)
-        }
-
-        pageDao.updateList(updated)
+    suspend fun updatePages(values: List<PageEntity>) {
+        pageDao.updateList(values)
     }
 
     suspend fun movePage(documentId: Long, index: Int, pageId: Long) {
