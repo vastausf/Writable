@@ -81,14 +81,14 @@ fun HomeScreen(
                     var dropdownMenuExpanded by remember { mutableStateOf(false) }
 
                     RoundButton(
-                        icon = Icons.Rounded.Search,
-                        contentDescription = R.string.search,
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(R.string.search),
                     ) {
 
                     }
                     RoundButton(
-                        icon = Icons.Rounded.MoreVert,
-                        contentDescription = R.string.more,
+                        imageVector = Icons.Rounded.MoreVert,
+                        contentDescription = stringResource(R.string.more),
                     ) {
                         dropdownMenuExpanded = true
                     }
@@ -99,13 +99,13 @@ fun HomeScreen(
                     ) {
                         WritableDropdownMenuItem(
                             text = stringResource(R.string.settings),
-                            icon = Icons.Rounded.Settings,
+                            imageVector = Icons.Rounded.Settings,
                         ) {
                             dropdownMenuExpanded = false
                         }
                         WritableDropdownMenuItem(
                             text = stringResource(R.string.about),
-                            icon = Icons.Rounded.Info,
+                            imageVector = Icons.Rounded.Info,
                         ) {
                             dropdownMenuExpanded = false
                         }

@@ -1,5 +1,6 @@
 package com.vastausf.writable.ui.widgets
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -10,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import com.vastausf.writable.ui.theme.ThemePreview
+import com.vastausf.writable.ui.theme.WritableTheme
 import com.vastausf.writable.ui.theme.WritableTheme.colors
 import com.vastausf.writable.ui.theme.WritableTheme.typography
 
@@ -49,4 +52,22 @@ fun ThemedTextField(
             )
         }
     )
+}
+
+@ThemePreview
+@Composable
+private fun TextFieldPreview() {
+    WritableTheme {
+        Column {
+            ThemedTextField(
+                placeholder = "Field placeholder",
+                state = rememberTextFieldState("Text field value")
+            )
+
+            ThemedTextField(
+                placeholder = "Field placeholder",
+                state = rememberTextFieldState("")
+            )
+        }
+    }
 }

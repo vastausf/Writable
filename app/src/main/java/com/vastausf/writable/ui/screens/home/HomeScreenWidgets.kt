@@ -122,7 +122,7 @@ fun DocumentCard(
         ) {
             WritableDropdownMenuItem(
                 text = stringResource(R.string.edit),
-                icon = Icons.Rounded.Edit,
+                imageVector = Icons.Rounded.Edit,
             ) {
                 menuExpanded = false
 
@@ -131,7 +131,7 @@ fun DocumentCard(
 
             WritableDropdownMenuItem(
                 text = stringResource(R.string.delete),
-                icon = Icons.Rounded.Delete,
+                imageVector = Icons.Rounded.Delete,
             ) {
                 menuExpanded = false
 

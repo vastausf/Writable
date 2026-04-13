@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -103,7 +102,7 @@ private fun WritableDropdownMenuContent(
 @Composable
 fun WritableDropdownMenuItem(
     text: String,
-    icon: ImageVector,
+    imageVector: ImageVector,
     onClick: () -> Unit,
 ) {
     Row(
@@ -114,7 +113,10 @@ fun WritableDropdownMenuItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Icon(icon, contentDescription = null, tint = colors.textAndIcons)
+        ThemedIcon(
+            imageVector = imageVector,
+            contentDescription = null,
+        )
         ContentText(text)
     }
 }

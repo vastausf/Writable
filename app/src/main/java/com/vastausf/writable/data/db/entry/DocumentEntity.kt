@@ -14,4 +14,6 @@ data class DocumentEntity(
     val coverColor: Int = 0xFFFFFFFF.toInt(),
     val spineColor: Int = 0xFFFFFFFF.toInt(),
     val bookmarkColor: Int = 0xFFFFFFFF.toInt(),
+    val stylusWidth: Float = 1f,
+    val stylusColor: Int = 0xFF000000.toInt(),
 )
