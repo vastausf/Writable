@@ -25,4 +25,7 @@ interface PageDao {
 
     @Query("DELETE FROM pages WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<Long>)
+
+    @Query("UPDATE pages SET canvasData = :canvasData WHERE id = :pageId")
+    suspend fun updateCanvasData(pageId: Long, canvasData: ByteArray)
 }

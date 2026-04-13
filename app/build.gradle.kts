@@ -77,6 +77,7 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.cbor)
 
     // Tests
     testImplementation(libs.junit)
