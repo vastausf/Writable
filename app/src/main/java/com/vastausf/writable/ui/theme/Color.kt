@@ -54,9 +54,9 @@ val LightColors = WritableColors(
 val DarkColors = WritableColors(
     primary = Color(0xFFE8C99A),
     accent = Color(0xFFFFB74D),
-    background = Color(0xFF150F07),
-    surface = Color(0xFF1F160D),
-    textAndIcons = Color(0xFFE8C99A),
-    textAndIconsSecondary = Color(0xFF887C7C),
-    outline = Color(0xFFA17B6B),
+    background = Color(0xFF110E07),
+    surface = Color(0xFF130F09),
+    textAndIcons = Color(0xFFF5DFC5),
+    textAndIconsSecondary = Color(0xFFC0AEAE),
+    outline = Color(0xFFDEB3A3),
 )

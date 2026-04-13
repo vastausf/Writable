@@ -16,26 +16,25 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import com.vastausf.writable.data.pageCanvas.Stroke as StrokeData
 import com.vastausf.writable.data.pageCanvas.StrokePoint
+import com.vastausf.writable.ui.screens.editor.StylusStyle
 
 @Composable
 fun DrawingLayer(
     strokes: List<StrokeData>,
     onStrokeFinished: (StrokeData) -> Unit,
     modifier: Modifier = Modifier,
-    strokeColor: Color = Color.Black,
-    strokeWidth: Float = 4f,
+    stylusStyle: StylusStyle,
 ) {
     var currentPoints by remember { mutableStateOf<List<StrokePoint>>(emptyList()) }
 
     Canvas(
         modifier = modifier
-            .pointerInput(Unit) {
+            .pointerInput(stylusStyle) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
 
@@ -57,8 +56,8 @@ fun DrawingLayer(
                         onStrokeFinished(
                             StrokeData(
                                 points = currentPoints,
-                                color = strokeColor.toArgb(),
-                                width = strokeWidth,
+                                color = stylusStyle.color,
+                                width = stylusStyle.width,
                             )
                         )
                     }
@@ -76,8 +75,8 @@ fun DrawingLayer(
                 drawStroke(
                     StrokeData(
                         points = currentPoints,
-                        color = strokeColor.toArgb(),
-                        width = strokeWidth,
+                        color = stylusStyle.color,
+                        width = stylusStyle.width,
                     )
                 )
             }

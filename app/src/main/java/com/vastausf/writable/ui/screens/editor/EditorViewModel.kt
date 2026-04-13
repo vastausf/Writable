@@ -77,6 +77,17 @@ class EditorViewModel @Inject constructor(
         }
     }
 
+    fun updateStylusStyle(stylusStyle: StylusStyle) {
+        val document = document.value ?: return
+
+        viewModelScope.launch {
+            repository.updateDocument(document.copy(
+                stylusColor = stylusStyle.color,
+                stylusWidth = stylusStyle.width,
+            ))
+        }
+    }
+
     private suspend fun loadVisiblePages(visiblePositions: List<Int>) {
         val document = _document.value ?: return
         val pagesIds = document.pagesIds

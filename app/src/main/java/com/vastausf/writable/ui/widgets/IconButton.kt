@@ -1,22 +1,39 @@
 package com.vastausf.writable.ui.widgets
 
-import androidx.annotation.StringRes
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import com.vastausf.writable.ui.theme.ThemePreview
+import com.vastausf.writable.ui.theme.WritableTheme
 
 @Composable
 fun RoundButton(
-    icon: ImageVector,
-    @StringRes
-    contentDescription: Int,
+    imageVector: ImageVector,
+    contentDescription: String?,
     onClick: () -> Unit,
 ) {
     IconButton(
         onClick = onClick,
     ) {
-        Icon(icon, stringResource(contentDescription))
+        ThemedIcon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+        )
+    }
+}
+
+@Composable
+@ThemePreview
+private fun RoundButtonPreview() {
+    WritableTheme {
+        Column {
+            RoundButton(
+                imageVector = Icons.Rounded.Accessibility,
+                contentDescription = null,
+            ) { }
+        }
     }
 }

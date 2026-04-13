@@ -1,11 +1,16 @@
 package com.vastausf.writable.ui.widgets
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.unit.dp
+import com.vastausf.writable.ui.theme.ThemePreview
+import com.vastausf.writable.ui.theme.WritableTheme
+import com.vastausf.writable.ui.theme.WritableTheme.colors
 
 @Composable
 fun DocumentCover(
@@ -40,6 +45,20 @@ fun DocumentCover(
                 close()
             },
             color = bookmark,
+        )
+    }
+}
+
+@Composable
+@ThemePreview
+private fun DocumentCoverPreview() {
+    WritableTheme {
+        DocumentCover(
+            modifier = Modifier
+                .size(32.dp),
+            cover = colors.defaultCover,
+            spine = colors.defaultSpine,
+            bookmark = colors.defaultBookmark,
         )
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,11 +24,16 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -39,6 +45,7 @@ import com.vastausf.writable.data.db.entry.PageType
 import com.vastausf.writable.ui.theme.WritableTheme.colors
 import com.vastausf.writable.ui.widgets.ContentText
 import com.vastausf.writable.ui.widgets.DrawingLayer
+import com.vastausf.writable.ui.widgets.StylusPanel
 import com.vastausf.writable.ui.widgets.ThemedIcon
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -46,6 +53,18 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun EditorScreen(
     viewModel: EditorViewModel = hiltViewModel(),
 ) {
+    val document by viewModel.document.collectAsStateWithLifecycle()
+    var stylusStyle by remember { mutableStateOf(StylusStyle()) }
+
+    LaunchedEffect(document) {
+        document?.apply {
+            stylusStyle = StylusStyle(
+                color = stylusColor,
+                width = stylusWidth,
+            )
+        }
+    }
+
     Scaffold(
         containerColor = colors.background,
     ) { padding ->
@@ -55,9 +74,10 @@ fun EditorScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            val document by viewModel.document.collectAsStateWithLifecycle()
             val pages by viewModel.pages.collectAsStateWithLifecycle()
             val listState = rememberLazyListState()
+
+            val colors = colors.palette
 
             LaunchedEffect(listState) {
                 snapshotFlow {
@@ -70,9 +90,21 @@ fun EditorScreen(
 
             val totalPages = document?.pagesIds?.size ?: 0
 
-            LazyColumn(state = listState) {
+            val density = LocalDensity.current
+            var topSafeOffset by remember { mutableStateOf(0.dp) }
+
+            LazyColumn(
+                state = listState,
+                contentPadding = PaddingValues(
+                    top = topSafeOffset,
+                ),
+            ) {
                 items(totalPages) { page ->
-                    RenderPage(pages[page], viewModel)
+                    RenderPage(
+                        pageState = pages[page],
+                        viewModel = viewModel,
+                        stylusStyle = stylusStyle,
+                    )
                 }
 
                 item {
@@ -85,6 +117,22 @@ fun EditorScreen(
                     )
                 }
             }
+
+            StylusPanel(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .onSizeChanged { with(density) { topSafeOffset = it.height.toDp() } }
+                    .padding(16.dp),
+                selectedColor = Color(stylusStyle.color),
+                onColorSelect = {
+                    viewModel.updateStylusStyle(stylusStyle.copy(color = it.toArgb()))
+                },
+                selectedWidth = stylusStyle.width,
+                onWidthSelect = {
+                    viewModel.updateStylusStyle(stylusStyle.copy(width = it))
+                },
+                stylusColors = colors,
+            )
         }
     }
 }
@@ -93,6 +141,7 @@ fun EditorScreen(
 fun RenderPage(
     pageState: PageState?,
     viewModel: EditorViewModel,
+    stylusStyle: StylusStyle,
 ) {
     if (pageState == null) {
         Box(
@@ -131,8 +180,12 @@ fun RenderPage(
                 modifier = Modifier
                     .fillMaxSize(),
                 strokes = pageState.strokes,
+                stylusStyle = stylusStyle,
                 onStrokeFinished = { stroke ->
-                    viewModel.addStroke(pageState.page.id, stroke)
+                    viewModel.addStroke(
+                        pageId = pageState.page.id,
+                        stroke = stroke,
+                    )
                 },
             )
         }
