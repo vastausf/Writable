@@ -1,7 +1,6 @@
 package com.vastausf.writable.data.db
 
 import androidx.room.TypeConverter
-
 class Converters {
     @TypeConverter
     fun fromLongList(value: List<Long>): String = value.joinToString(",")

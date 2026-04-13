@@ -4,7 +4,11 @@ import com.vastausf.writable.data.db.dao.DocumentDao
 import com.vastausf.writable.data.db.dao.PageDao
 import com.vastausf.writable.data.db.entry.DocumentEntity
 import com.vastausf.writable.data.db.entry.PageEntity
+import com.vastausf.writable.data.pageCanvas.Stroke
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.encodeToByteArray
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,5 +83,13 @@ class DocumentRepository @Inject constructor(
     suspend fun removePage(documentId: Long, pageId: Long) {
         pageDao.deleteById(pageId)
         documentDao.removePageId(documentId, pageId)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun saveStrokes(pageId: Long, strokes: List<Stroke>) {
+        pageDao.updateCanvasData(
+            pageId = pageId,
+            canvasData = Cbor.encodeToByteArray(strokes),
+        )
     }
 }

@@ -8,12 +8,20 @@ import com.vastausf.writable.data.db.entry.PageEntity
 import com.vastausf.writable.data.pageCanvas.Stroke
 import com.vastausf.writable.data.repository.DocumentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.decodeFromByteArray
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class EditorViewModel @Inject constructor(
     private val repository: DocumentRepository,
@@ -26,6 +34,10 @@ class EditorViewModel @Inject constructor(
 
     private val _pages = MutableStateFlow<Map<Int, PageState>>(emptyMap())
     val pages = _pages.asStateFlow()
+
+    private val pendingSaves = MutableSharedFlow<Pair<Long, List<Stroke>>>(
+        extraBufferCapacity = Channel.UNLIMITED,
+    )
 
     private val visibleIndices = MutableStateFlow<List<Int>>(emptyList())
 
@@ -49,6 +61,14 @@ class EditorViewModel @Inject constructor(
                     if (indices.isEmpty()) return@collect
 
                     loadVisiblePages(indices)
+                }
+        }
+
+        viewModelScope.launch {
+            pendingSaves
+                .debounce(500)
+                .collect { (pageId, strokes) ->
+                    repository.saveStrokes(pageId, strokes)
                 }
         }
     }
@@ -75,6 +95,9 @@ class EditorViewModel @Inject constructor(
                 strokes = pageState.strokes + stroke,
             ))
         }
+
+        val updatedStrokes = _pages.value[position]?.strokes ?: return
+        pendingSaves.tryEmit(pageId to updatedStrokes)
     }
 
     fun updateStylusStyle(stylusStyle: StylusStyle) {
@@ -88,6 +111,7 @@ class EditorViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun loadVisiblePages(visiblePositions: List<Int>) {
         val document = _document.value ?: return
         val pagesIds = document.pagesIds
@@ -106,7 +130,12 @@ class EditorViewModel @Inject constructor(
 
         val newEntries = positionsToLoad.mapNotNull { position ->
             val pageId = pagesIds[position]
-            loaded[pageId]?.let { position to PageState(page = it) }
+            loaded[pageId]?.let { page ->
+                position to PageState(
+                    page = page,
+                    strokes = page.canvasData?.let { Cbor.decodeFromByteArray(it) } ?: emptyList(),
+                )
+            }
         }.toMap()
 
         _pages.update { it + newEntries }

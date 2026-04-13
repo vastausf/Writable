@@ -22,6 +22,7 @@ object DatabaseModule {
             .databaseBuilder(context, AppDatabase::class.java, "writable.db")
             .addMigrations(AppDatabase.MIGRATION_1_2)
             .addMigrations(AppDatabase.MIGRATION_2_3)
+            .addMigrations(AppDatabase.MIGRATION_3_4)
             .build()
     }
 
